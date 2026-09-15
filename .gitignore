@@ -481,6 +481,42 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-# Secrets locales: NUNCA commitear claves reales
+# --- AGREGADOS PARA KIOSCO ---
+
+# 1. Secrets y Configuración Local
+# Nunca commitear claves reales de JWT o connection strings locales
 **/appsettings.*.Local.json
 *.secret.json
+.env
+.env.local
+
+# 2. VS Code (Editor que probablemente usen todos)
+
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# 3. Frontend (React/Vue/Angular)
+dist/
+build/
+.next/
+out/
+coverage/         # Reportes de tests de frontend
+*.log             # Logs de npm/yarn/vite
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 4. Tests
+TestResults/
+[Ll]og/
+[Ll]ogs/
+*.trx             # Resultados de tests de .NET
+coverage.opencover.xml
+
+# 5. Archivos temporales de editores varios
+*.swp
+*.swo
+*~
