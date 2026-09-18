@@ -1,6 +1,4 @@
-using Kiosco.Api.Models;
-
-namespace kiosco.Api.Models
+namespace Kiosco.Api.Models
 {
     public class Usuario
     {
