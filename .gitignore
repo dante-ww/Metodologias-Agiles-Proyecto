@@ -514,3 +514,11 @@ coverage.opencover.xml
 branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
+
+# Configuración sensible (backend)
+appsettings.Development.json
+appsettings.Production.json
+
+# Mantener
+!appsettings.json
+!appsettings.Development.example.json
