@@ -20,11 +20,11 @@ Proyecto universitario de la materia **Metodologías Ágiles en el Desarrollo de
 ```
 Metodologias-Agiles-Proyecto/
 ├── Backend/
-│   └── Kiosco.Api/          # API REST en ASP.NET Core (.NET 10)
-├── Frontend/                # Aplicación frontend (en construcción)
-├── Database/                # Scripts SQL
-├── Docs/                    # Documentación
-├── Tests/                   # Pruebas
+│   └── Kiosco.Api/
+├── Frontend/
+├── Database/
+├── Docs/
+├── Tests/
 ├── .gitignore
 └── README.md
 ```
