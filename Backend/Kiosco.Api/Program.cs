@@ -73,8 +73,15 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Redirigir la raíz a Swagger solo en desarrollo
+if (app.Environment.IsDevelopment())
+{
+    app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
+}
+
 // Leer puerto desde variable de entorno (necesario para Render)
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-app.Urls.Add($"http://0.0.0.0:{port}");
+app.Urls.Add($"http://0.0.0.0:{port}"); // Para Render/Docker
+app.Urls.Add($"http://localhost:{port}"); // Para desarrollo local
 
 app.Run();
