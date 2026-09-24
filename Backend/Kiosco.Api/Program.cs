@@ -79,9 +79,10 @@ if (app.Environment.IsDevelopment())
     app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 }
 
+app.Urls.Clear();
 // Leer puerto desde variable de entorno (necesario para Render)
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://0.0.0.0:{port}"); // Para Render/Docker
-app.Urls.Add($"http://localhost:{port}"); // Para desarrollo local
+
 
 app.Run();
