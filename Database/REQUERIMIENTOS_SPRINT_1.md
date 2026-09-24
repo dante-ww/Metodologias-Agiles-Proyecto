@@ -1,117 +1,89 @@
-# Sprint 1 — Autenticación y roles
+# sprint 1 — autenticación y roles
 
-## Objetivo
+## objetivo
 
-Permitir que los usuarios ingresen al sistema mediante un nombre de usuario y contraseña, restringiendo las funcionalidades disponibles según el rol del usuario.
+implementar el acceso al sistema mediante usuario y contraseña, diferenciando los permisos según el rol del usuario.
 
-El sistema tendrá dos roles:
+los empleados con rol `cajero` solamente podrán acceder a la pantalla de checkout y no podrán acceder a la administración ni modificar precios.
 
-* **ADMINISTRADOR:** acceso total al sistema.
-* **CAJERO:** acceso únicamente a las funciones relacionadas con el cobro y las ventas.
+los usuarios con rol `administrador` tendrán acceso a las funciones administrativas del sistema.
 
----
+## requerimientos funcionales
 
-## Requerimientos
+### RF-01 — inicio de sesión
 
-### RF-01 — Inicio de sesión
+el sistema debe permitir que un usuario ingrese utilizando su nombre de usuario y contraseña.
 
-El usuario debe poder ingresar al sistema utilizando su nombre de usuario y contraseña.
+### RF-02 — validación de credenciales
 
-### RF-02 — Validación de credenciales
+el sistema debe validar que el usuario exista y que la contraseña ingresada coincida con la contraseña almacenada de forma segura.
 
-El sistema debe verificar que las credenciales ingresadas sean correctas antes de permitir el acceso.
+### RF-03 — control de roles
 
-### RF-03 — Control de roles
+cada usuario debe tener un rol que determine las funciones a las que puede acceder.
 
-Cada usuario tendrá asignado un rol que determinará las funcionalidades a las que puede acceder.
+roles definidos:
 
-### RF-04 — Restricción para cajeros
+* `cajero`
+* `administrador`
 
-Los usuarios con rol **CAJERO** solamente podrán acceder a las funcionalidades relacionadas con el proceso de cobro.
+### RF-04 — permisos del cajero
 
-El cajero no podrá:
+el usuario con rol `cajero` podrá utilizar únicamente las funciones correspondientes al checkout.
 
-* Modificar precios.
-* Consultar precios de costo.
-* Gestionar productos.
-* Gestionar stock.
-* Acceder a reportes administrativos.
-* Modificar usuarios.
+el cajero no podrá:
 
-### RF-05 — Acceso del administrador
+* acceder a la administración;
+* modificar precios;
+* acceder al costo de los productos;
+* modificar configuraciones administrativas.
 
-Los usuarios con rol **ADMINISTRADOR** tendrán acceso a las funcionalidades administrativas del sistema.
+### RF-05 — permisos del administrador
 
----
+el usuario con rol `administrador` tendrá acceso a las funciones administrativas correspondientes al sistema.
 
-# Tabla de usuarios
+## base de datos
 
-La tabla `usuarios` tendrá los siguientes campos:
+* motor: mysql
+* proveedor: railway
+* nombre de la base de datos: `railway`
 
-| Campo           | Tipo de dato | Restricciones               | Descripción                                            |
-| --------------- | ------------ | --------------------------- | ------------------------------------------------------ |
-| `id`            | INT UNSIGNED | PRIMARY KEY, AUTO_INCREMENT | Identificador único del usuario                        |
-| `nombre`        | VARCHAR(100) | NOT NULL                    | Nombre o usuario utilizado para identificar al usuario |
-| `password_hash` | VARCHAR(255) | NOT NULL                    | Contraseña almacenada mediante un algoritmo de hashing |
-| `rol`           | ENUM         | NOT NULL                    | Rol asignado al usuario                                |
+### tabla `usuarios`
 
-## Roles
+| campo           | tipo         | restricciones               |
+| --------------- | ------------ | --------------------------- |
+| `id`            | int unsigned | primary key, auto_increment |
+| `nombre`        | varchar(100) | not null, unique            |
+| `password_hash` | varchar(255) | not null                    |
+| `rol`           | varchar(20)  | not null                    |
 
-Los roles disponibles serán:
+## protección de contraseñas
 
-* `CAJERO`
-* `ADMINISTRADOR`
+las contraseñas de los usuarios no deben almacenarse en texto plano.
 
-### CAJERO
+se utilizará **bcrypt** para generar los hashes de las contraseñas.
 
-Puede utilizar las funciones necesarias para realizar ventas y cobros.
+la base de datos almacenará únicamente el valor de `password_hash`.
 
-### ADMINISTRADOR
+## usuarios de prueba
 
-Puede acceder a las funciones administrativas, incluyendo productos, precios, stock, reportes y gestión de usuarios.
+para las pruebas del sistema se utilizarán los siguientes usuarios:
 
----
+| nombre    | rol             |
+| --------- | --------------- |
+| `admin`   | `administrador` |
+| `cajero1` | `cajero`        |
+| `cajero2` | `cajero`        |
 
-# Protección de contraseñas
 
-Las contraseñas **no se almacenarán en texto plano**.
+## seguridad
 
-Se utilizará el algoritmo **BCrypt** para generar un hash seguro de cada contraseña.
+* no almacenar contraseñas en texto plano en la base de datos;
+* utilizar bcrypt para el almacenamiento seguro de las contraseñas.
 
-Proceso:
+## estructura actual
 
-1. El usuario introduce su contraseña.
-2. El backend recibe la contraseña.
-3. BCrypt genera un hash utilizando un salt.
-4. Se almacena únicamente el hash en `password_hash`.
-5. Durante el inicio de sesión, BCrypt compara la contraseña introducida con el hash almacenado.
-6. Si coinciden, se permite el acceso.
+la tabla `usuarios` ya fue creada en la base de datos y contiene los campos definidos para el sprint 1.
 
-La base de datos nunca almacenará la contraseña original.
+el backend será responsable de la autenticación y de aplicar las restricciones correspondientes según el rol del usuario.
 
----
-
-# Usuarios de prueba
-
-Estos usuarios son únicamente para pruebas durante el desarrollo.
-
-| Usuario   | Contraseña de prueba | Rol             |
-| --------- | -------------------- | --------------- |
-| `admin`   | `Admin123!`          | `ADMINISTRADOR` |
-| `cajero1` | `Cajero123!`         | `CAJERO`        |
-| `cajero2` | `Cajero456!`         | `CAJERO`        |
-
-**Nota:** las contraseñas anteriores son únicamente credenciales de prueba. En la base de datos no deben almacenarse directamente, sino sus correspondientes hashes BCrypt.
-
----
-
-# SQL inicial
-
-```sql
-CREATE TABLE usuarios (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    rol ENUM('CAJERO', 'ADMINISTRADOR') NOT NULL
-);
-```
