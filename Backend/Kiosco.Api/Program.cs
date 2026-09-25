@@ -59,12 +59,11 @@ var app = builder.Build();
 
 // --- Pipeline (qué pasa cuando llega una petición) ---
 
-// Swagger (solo en desarrollo para pruebas)
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger para todos los entornos
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
@@ -73,16 +72,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Redirigir la raíz a Swagger solo en desarrollo
-if (app.Environment.IsDevelopment())
-{
-    app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
-}
+// Redirigir la raíz a Swagger automáticamente
+app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
 app.Urls.Clear();
 // Leer puerto desde variable de entorno (necesario para Render)
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-app.Urls.Add($"http://0.0.0.0:{port}"); // Para Render/Docker
+app.Urls.Add($"http://0.0.0.0:{port}");
 
 
 app.Run();
