@@ -4,3 +4,10 @@ CREATE TABLE usuarios (
     password_hash VARCHAR(255) NOT NULL,
     rol ENUM('CAJERO', 'ADMINISTRADOR') NOT NULL
 );
+
+CREATE TABLE productos (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(150) NOT NULL,
+    precio_costo DECIMAL(12,2) NOT NULL,
+    precio_venta DECIMAL(12,2) NOT NULL
+);
