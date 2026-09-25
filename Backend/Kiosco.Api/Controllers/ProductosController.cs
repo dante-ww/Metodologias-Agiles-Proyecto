@@ -68,5 +68,35 @@ namespace Kiosco.Api.Controllers
                 PrecioCosto = producto.PrecioCosto
             });
         }
+
+        // POST api/productos
+        [HttpPost]
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> CreateProducto([FromBody] CreateProductoRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Nombre))
+            {
+                return BadRequest("El nombre del producto no puede estar vacio");
+            }
+
+            var producto = new Producto
+            {
+                Nombre = request.Nombre,
+                PrecioCosto = request.PrecioCosto,
+                PrecioVenta = request.PrecioVenta
+            };
+
+            _context.Productos.Add(producto);
+            await _context.SaveChangesAsync();
+
+            // Después de SaveChanges, EF rellena producto.Id con el autoincremental de MySQL
+            return Created($"/api/productos/{producto.Id}", new ProductoAdminResponse
+            {
+                Id = producto.Id,
+                Nombre = producto.Nombre,
+                PrecioVenta = producto.PrecioVenta,
+                PrecioCosto = producto.PrecioCosto
+            });
+        }
     }
 }
