@@ -44,7 +44,7 @@ namespace Kiosco.Api.Controllers
 
         // POST /api/auth/createUser
         [HttpPost("createUser")]
-        [Authorize(Roles = "ADMINISTRADOR")]
+        // [Authorize(Roles = "ADMINISTRADOR")] comentario para crear el primer usuario admin (el dueño)
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
             // 1. Intentar crear el usuario
