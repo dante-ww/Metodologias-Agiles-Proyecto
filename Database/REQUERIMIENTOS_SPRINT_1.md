@@ -57,6 +57,16 @@ el usuario con rol `administrador` tendrá acceso a las funciones administrativa
 | `password_hash` | varchar(255) | not null                    |
 | `rol`           | varchar(20)  | not null                    |
 
+### tabla `productos`
+
+| campo           | tipo           | restricciones               |
+| --------------- | -------------  | --------------------------- |
+| `id`            | int unsigned   | primary key, auto_increment |
+| `nombre`        | varchar(150)   | not null                    |
+| `precio_costo`  | decimal(12,2)  | not null                    |
+| `precio_venta`  | decimal(12,2)  | not null                    |
+
+
 ## protección de contraseñas
 
 las contraseñas de los usuarios no deben almacenarse en texto plano.
