@@ -16,4 +16,11 @@ namespace Kiosco.Api.Models
     {
         public decimal PrecioVenta { get; set; }
     }
+
+    public class CreateProductoRequest
+    {
+        public string Nombre { get; set; } = "";
+        public decimal PrecioCosto { get; set; }
+        public decimal PrecioVenta { get; set; }
+    }
 }
