@@ -44,7 +44,7 @@ namespace Kiosco.Api.Controllers
 
         // POST /api/auth/createUser
         [HttpPost("createUser")]
-        // [Authorize(Roles = "ADMINISTRADOR")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
             // 1. Intentar crear el usuario
