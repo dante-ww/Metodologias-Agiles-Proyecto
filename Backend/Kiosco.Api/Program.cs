@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Kiosco.Api;
 using Kiosco.Api.Services;
-using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,26 +19,7 @@ builder.Services.AddControllers();
 
 // 3. Swagger (para probar la API en el navegador)
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Kiosco API",
-        Version = "v1"
-    });
-
-    // CONFIGURACIÓN DE SEGURIDAD JWT PARA SWAGGER UI
-    // Esto crea el botón para agregar el token JWT (de el dueño o distintos admins al logearse)
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Pega aquí el token recibido del login (sin la palabra Bearer)"
-    });
-});
+builder.Services.AddSwaggerGen();
 
 // 4. CORS - Permitir que el frontend llame a esta API
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
