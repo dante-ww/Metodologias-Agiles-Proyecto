@@ -61,12 +61,12 @@ namespace Kiosco.Api.Services
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
-            // 4. Crear el token con expiración de 1 hora
+            // 4. Crear el token con expiración de 12 hora
             var token = new JwtSecurityToken(
                 issuer: issuer,
                 audience: audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(12),
                 signingCredentials: credentials
             );
 
