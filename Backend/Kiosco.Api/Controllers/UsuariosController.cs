@@ -33,5 +33,27 @@ namespace Kiosco.Api.Controllers
 
             return Ok(usuarios);
         }
+
+        // DELETE api/usuarios/5
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> DeleteUsuario(int id)
+        {
+            // 1. Buscar el usuario
+            var usuario = await _context.Usuarios.FindAsync(id);
+
+            // 2. Si no existe, 404
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            // 3. Marcar para borrar y guardar
+            _context.Usuarios.Remove(usuario);
+            await _context.SaveChangesAsync();
+
+            // 4. Estándar REST: 204 No Content
+            return NoContent();
+        }
     }
 }

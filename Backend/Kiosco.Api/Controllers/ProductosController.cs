@@ -98,5 +98,27 @@ namespace Kiosco.Api.Controllers
                 PrecioCosto = producto.PrecioCosto
             });
         }
+
+        // DELETE api/productos/5
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> DeleteProducto(int id)
+        {
+            // 1. Buscar el producto
+            var producto = await _context.Productos.FindAsync(id);
+
+            // 2. Si no existe, 404
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            // 3. Marcar para borrar y guardar
+            _context.Productos.Remove(producto);
+            await _context.SaveChangesAsync();
+
+            // 4. Estándar REST: 204 No Content (borrado exitoso, sin cuerpo)
+            return NoContent();
+        }
     }
 }
