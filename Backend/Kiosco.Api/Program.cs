@@ -39,6 +39,12 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "Pega aquí el token recibido del login (sin la palabra Bearer)"
     });
+
+    // Con esto Swagger UI adjunta el header Authorization: Bearer <token> en cada petición.
+    c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+    });
 });
 
 
