@@ -66,12 +66,12 @@ namespace Kiosco.Api.Controllers
         }
 
         // PUT api/productos/5
-        // Admin: Todo. Cajero: Solo PrecioVenta y Stock.
+        // Solo ADMIN
         [HttpPut("{id}")]
-        [Authorize(Roles = "ADMINISTRADOR, CAJERO")] // 1. Permitimos entrar a ambos
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> UpdateProducto(int id, [FromBody] UpdateProductoRequest request)
         {
-            // 2. Buscamos el producto original
+            // 1. Buscamos el producto original
             var producto = await _context.Productos.FindAsync(id);
             if (producto == null)
             {
@@ -85,18 +85,7 @@ namespace Kiosco.Api.Controllers
                 return BadRequest("La categoria indicada no existe.");
             }
 
-            bool esCajero = User.IsInRole("CAJERO");
-
-            if (esCajero)
-            {
-                // 3. Cosas que el cajero no puede tocar
-                request.PrecioCosto = producto.PrecioCosto;
-                request.Nombre = producto.Nombre;
-                request.CodigoBarras = producto.CodigoBarras;
-                request.CategoriaId = producto.CategoriaId;
-            }
-
-            // 4. Pasamos los datos del request al producto
+            // 3. Pasamos los datos del request al producto
             producto.PrecioVenta = request.PrecioVenta;
             producto.Stock = request.Stock;
             producto.PrecioCosto = request.PrecioCosto;
@@ -104,7 +93,7 @@ namespace Kiosco.Api.Controllers
             producto.CodigoBarras = request.CodigoBarras;
             producto.CategoriaId = request.CategoriaId;
 
-            // 5. Guardamos en la base de datos
+            // 4. Guardamos en la base de datos
             try
             {
                 await _context.SaveChangesAsync();
@@ -116,30 +105,14 @@ namespace Kiosco.Api.Controllers
 
             var categoriaNombre = await ObtenerNombreCategoria(producto.CategoriaId);
 
-            // 6. Respuesta según el rol
-            if (User.IsInRole("ADMINISTRADOR"))
-            {
-                // Admin ve todo
-                return Ok(new ProductoAdminResponse
-                {
-                    Id = producto.Id,
-                    Nombre = producto.Nombre,
-                    CodigoBarras = producto.CodigoBarras,
-                    PrecioVenta = producto.PrecioVenta,
-                    PrecioCosto = producto.PrecioCosto,
-                    Stock = producto.Stock,
-                    CategoriaId = producto.CategoriaId,
-                    CategoriaNombre = categoriaNombre
-                });
-            }
-
-            // Cajero ve solo lo básico
-            return Ok(new ProductoResponse
+            // 5. Devolvemos la vista completa
+            return Ok(new ProductoAdminResponse
             {
                 Id = producto.Id,
                 Nombre = producto.Nombre,
                 CodigoBarras = producto.CodigoBarras,
                 PrecioVenta = producto.PrecioVenta,
+                PrecioCosto = producto.PrecioCosto,
                 Stock = producto.Stock,
                 CategoriaId = producto.CategoriaId,
                 CategoriaNombre = categoriaNombre
