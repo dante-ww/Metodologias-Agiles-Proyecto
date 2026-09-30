@@ -33,8 +33,6 @@ namespace Kiosco.Api.Controllers
                     Nombre = p.Nombre,
                     CodigoBarras = p.CodigoBarras,
                     Stock = p.Stock,
-                    StockMinimo = p.StockMinimo,
-                    StockBajo = p.Stock <= p.StockMinimo, // Lógica de semáforo para usarse facilmente en el front
                     PrecioCosto = p.PrecioCosto,
                     PrecioVenta = p.PrecioVenta
                 }));
@@ -47,7 +45,6 @@ namespace Kiosco.Api.Controllers
                 Nombre = p.Nombre,
                 CodigoBarras = p.CodigoBarras,
                 Stock = p.Stock,
-                StockBajo = p.Stock <= p.StockMinimo,
                 PrecioVenta = p.PrecioVenta
 
             }));
@@ -72,7 +69,6 @@ namespace Kiosco.Api.Controllers
             {
                 // 3. Cosas que el cajero no puede tocar
                 request.PrecioCosto = producto.PrecioCosto;
-                request.StockMinimo = producto.StockMinimo;
                 request.Nombre = producto.Nombre;
                 request.CodigoBarras = producto.CodigoBarras;
             }
@@ -81,7 +77,6 @@ namespace Kiosco.Api.Controllers
             producto.PrecioVenta = request.PrecioVenta;
             producto.Stock = request.Stock;
             producto.PrecioCosto = request.PrecioCosto;
-            producto.StockMinimo = request.StockMinimo;
             producto.Nombre = request.Nombre;
             producto.CodigoBarras = request.CodigoBarras;
 
@@ -107,8 +102,6 @@ namespace Kiosco.Api.Controllers
                     PrecioVenta = producto.PrecioVenta,
                     PrecioCosto = producto.PrecioCosto,
                     Stock = producto.Stock,
-                    StockMinimo = producto.StockMinimo,
-                    StockBajo = producto.Stock <= producto.StockMinimo
                 });
             }
 
@@ -120,7 +113,6 @@ namespace Kiosco.Api.Controllers
                 CodigoBarras = producto.CodigoBarras,
                 PrecioVenta = producto.PrecioVenta,
                 Stock = producto.Stock,
-                StockBajo = producto.Stock <= producto.StockMinimo
             });
         }
 
@@ -143,7 +135,6 @@ namespace Kiosco.Api.Controllers
                 CodigoBarras = request.CodigoBarras,
                 PrecioCosto = request.PrecioCosto,
                 Stock = request.Stock,
-                StockMinimo = request.StockMinimo,
                 PrecioVenta = request.PrecioVenta
             };
 
@@ -166,8 +157,6 @@ namespace Kiosco.Api.Controllers
                 Nombre = producto.Nombre,
                 CodigoBarras = producto.CodigoBarras,
                 Stock = producto.Stock,
-                StockMinimo = producto.StockMinimo,
-                StockBajo = producto.Stock <= producto.StockMinimo,
                 PrecioVenta = producto.PrecioVenta,
                 PrecioCosto = producto.PrecioCosto
             });

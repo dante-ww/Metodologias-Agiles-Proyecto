@@ -7,13 +7,11 @@ namespace Kiosco.Api.Models
         public string CodigoBarras { get; set; } = "";
         public decimal PrecioVenta { get; set; }
         public int Stock { get; set; }
-        public bool StockBajo { get; set; }
     }
 
     public class ProductoAdminResponse : ProductoResponse
     {
         public decimal PrecioCosto { get; set; }
-        public int StockMinimo { get; set; }
     }
 
     public class UpdateProductoRequest
@@ -23,7 +21,6 @@ namespace Kiosco.Api.Models
         public decimal PrecioCosto { get; set; }
         public decimal PrecioVenta { get; set; }
         public int Stock { get; set; }
-        public int StockMinimo { get; set; }
     }
 
     public class CreateProductoRequest
@@ -33,6 +30,5 @@ namespace Kiosco.Api.Models
         public decimal PrecioCosto { get; set; }
         public decimal PrecioVenta { get; set; }
         public int Stock { get; set; }
-        public int StockMinimo { get; set; } = 5;
     }
 }

@@ -29,7 +29,6 @@ namespace Kiosco.Api
                 entity.Property(e => e.Nombre).HasColumnName("nombre");
                 entity.Property(e => e.CodigoBarras).HasColumnName("codigo_barras");
                 entity.Property(e => e.Stock).HasColumnName("stock");
-                entity.Property(e => e.StockMinimo).HasColumnName("stock_minimo");
                 entity.Property(e => e.PrecioCosto)
                     .HasColumnName("precio_costo")
                     .HasPrecision(12, 2);
