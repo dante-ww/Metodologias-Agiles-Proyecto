@@ -17,12 +17,23 @@ namespace Kiosco.Api.Controllers
             _context = context;
         }
 
+        // Busca el nombre de la categoria (o null si el producto no tiene)
+        private async Task<string?> ObtenerNombreCategoria(int? categoriaId)
+        {
+            if (categoriaId == null) return null;
+
+            return await _context.Categorias
+                .Where(c => c.Id == categoriaId)
+                .Select(c => c.Nombre)
+                .FirstOrDefaultAsync();
+        }
+
         // GET api/productos
         // el CAJERO no debe ver precios de costo; el ADMINISTRADOR sí.
         [HttpGet]
         public async Task<IActionResult> GetProductos()
         {
-            var productos = await _context.Productos.AsNoTracking().ToListAsync();
+            var productos = await _context.Productos.AsNoTracking().Include(p => p.Categoria).ToListAsync();
 
             // Vista admin
             if (User.IsInRole("ADMINISTRADOR"))
@@ -33,6 +44,8 @@ namespace Kiosco.Api.Controllers
                     Nombre = p.Nombre,
                     CodigoBarras = p.CodigoBarras,
                     Stock = p.Stock,
+                    CategoriaId = p.CategoriaId,
+                    CategoriaNombre = p.Categoria != null ? p.Categoria.Nombre : null,
                     PrecioCosto = p.PrecioCosto,
                     PrecioVenta = p.PrecioVenta
                 }));
@@ -45,6 +58,8 @@ namespace Kiosco.Api.Controllers
                 Nombre = p.Nombre,
                 CodigoBarras = p.CodigoBarras,
                 Stock = p.Stock,
+                CategoriaId = p.CategoriaId,
+                CategoriaNombre = p.Categoria != null ? p.Categoria.Nombre : null,
                 PrecioVenta = p.PrecioVenta
 
             }));
@@ -63,6 +78,13 @@ namespace Kiosco.Api.Controllers
                 return NotFound();
             }
 
+            // Si mandan una categoria, verificamos que exista antes de guardar
+            if (request.CategoriaId != null &&
+                !await _context.Categorias.AnyAsync(c => c.Id == request.CategoriaId))
+            {
+                return BadRequest("La categoria indicada no existe.");
+            }
+
             bool esCajero = User.IsInRole("CAJERO");
 
             if (esCajero)
@@ -71,6 +93,7 @@ namespace Kiosco.Api.Controllers
                 request.PrecioCosto = producto.PrecioCosto;
                 request.Nombre = producto.Nombre;
                 request.CodigoBarras = producto.CodigoBarras;
+                request.CategoriaId = producto.CategoriaId;
             }
 
             // 4. Pasamos los datos del request al producto
@@ -79,6 +102,7 @@ namespace Kiosco.Api.Controllers
             producto.PrecioCosto = request.PrecioCosto;
             producto.Nombre = request.Nombre;
             producto.CodigoBarras = request.CodigoBarras;
+            producto.CategoriaId = request.CategoriaId;
 
             // 5. Guardamos en la base de datos
             try
@@ -89,6 +113,8 @@ namespace Kiosco.Api.Controllers
             {
                 return Conflict("Error al actualizar.");
             }
+
+            var categoriaNombre = await ObtenerNombreCategoria(producto.CategoriaId);
 
             // 6. Respuesta según el rol
             if (User.IsInRole("ADMINISTRADOR"))
@@ -102,6 +128,8 @@ namespace Kiosco.Api.Controllers
                     PrecioVenta = producto.PrecioVenta,
                     PrecioCosto = producto.PrecioCosto,
                     Stock = producto.Stock,
+                    CategoriaId = producto.CategoriaId,
+                    CategoriaNombre = categoriaNombre
                 });
             }
 
@@ -113,6 +141,8 @@ namespace Kiosco.Api.Controllers
                 CodigoBarras = producto.CodigoBarras,
                 PrecioVenta = producto.PrecioVenta,
                 Stock = producto.Stock,
+                CategoriaId = producto.CategoriaId,
+                CategoriaNombre = categoriaNombre
             });
         }
 
@@ -129,13 +159,21 @@ namespace Kiosco.Api.Controllers
             if (string.IsNullOrWhiteSpace(request.CodigoBarras))
                 return BadRequest("El código de barras es obligatorio");
 
+            // Si mandan una categoria, verificamos que exista antes de guardar
+            if (request.CategoriaId != null &&
+                !await _context.Categorias.AnyAsync(c => c.Id == request.CategoriaId))
+            {
+                return BadRequest("La categoria indicada no existe.");
+            }
+
             var producto = new Producto
             {
                 Nombre = request.Nombre,
                 CodigoBarras = request.CodigoBarras,
                 PrecioCosto = request.PrecioCosto,
                 Stock = request.Stock,
-                PrecioVenta = request.PrecioVenta
+                PrecioVenta = request.PrecioVenta,
+                CategoriaId = request.CategoriaId
             };
 
             _context.Productos.Add(producto);
@@ -149,6 +187,7 @@ namespace Kiosco.Api.Controllers
                 return Conflict("Ya existe un producto con ese código de barras.");
             }
 
+            var categoriaNombre = await ObtenerNombreCategoria(producto.CategoriaId);
 
             // Después de SaveChanges, EF rellena producto.Id con el autoincremental de MySQL
             return Created($"/api/productos/{producto.Id}", new ProductoAdminResponse
@@ -157,6 +196,8 @@ namespace Kiosco.Api.Controllers
                 Nombre = producto.Nombre,
                 CodigoBarras = producto.CodigoBarras,
                 Stock = producto.Stock,
+                CategoriaId = producto.CategoriaId,
+                CategoriaNombre = categoriaNombre,
                 PrecioVenta = producto.PrecioVenta,
                 PrecioCosto = producto.PrecioCosto
             });
