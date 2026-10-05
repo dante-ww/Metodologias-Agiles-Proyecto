@@ -78,13 +78,27 @@ namespace Kiosco.Api.Controllers
                 return NotFound();
             }
 
+           if (string.IsNullOrWhiteSpace(request.Nombre))
+            {
+                return BadRequest("El nombre del producto no puede estar vacio");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.CodigoBarras))
+            {
+                return BadRequest("El código de barras es obligatorio");
+            }
+
+            if (!request.CodigoBarras.All(char.IsDigit))
+            {
+                return BadRequest("El código de barras debe contener solo numeros.");
+            }
+
             // Si mandan una categoria, verificamos que exista antes de guardar
             if (request.CategoriaId != null &&
                 !await _context.Categorias.AnyAsync(c => c.Id == request.CategoriaId))
             {
                 return BadRequest("La categoria indicada no existe.");
             }
-
             // 3. Pasamos los datos del request al producto
             producto.PrecioVenta = request.PrecioVenta;
             producto.Stock = request.Stock;
@@ -130,7 +144,14 @@ namespace Kiosco.Api.Controllers
             }
 
             if (string.IsNullOrWhiteSpace(request.CodigoBarras))
+            {
                 return BadRequest("El código de barras es obligatorio");
+            }
+
+            if (!request.CodigoBarras.All(char.IsDigit))
+            {
+                return BadRequest("El código de barras debe contener solo numeros.");
+            }
 
             // Si mandan una categoria, verificamos que exista antes de guardar
             if (request.CategoriaId != null &&
