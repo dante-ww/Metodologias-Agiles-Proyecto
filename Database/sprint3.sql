@@ -10,6 +10,14 @@ CREATE TABLE categorias (
     nombre VARCHAR(100) NOT NULL UNIQUE
 );
 
+CREATE TABLE clientes (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(150) NOT NULL,
+    dni_cuit VARCHAR(20) NULL UNIQUE,
+    razon_social VARCHAR(150) NULL,
+    domicilio VARCHAR(200) NULL
+);
+
 CREATE TABLE productos (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
@@ -32,9 +40,13 @@ CREATE TABLE ventas (
     monto_recibido DECIMAL(12,2) NOT NULL,
     vuelto DECIMAL(12,2) NOT NULL,
     id_usuario INT UNSIGNED NOT NULL,
+    id_cliente INT UNSIGNED NULL,
     CONSTRAINT fk_ventas_usuario
         FOREIGN KEY (id_usuario)
-        REFERENCES usuarios(id)
+        REFERENCES usuarios(id),
+    CONSTRAINT fk_ventas_cliente
+        FOREIGN KEY (id_cliente)
+        REFERENCES clientes(id)
 );
 
 CREATE TABLE detalle_ventas (
