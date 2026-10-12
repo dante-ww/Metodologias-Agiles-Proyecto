@@ -7,5 +7,7 @@ namespace Kiosco.Api.Models
         public string? DniCuit { get; set; }
         public string? RazonSocial { get; set; }
         public string? Domicilio { get; set; }
+
+        public List<Venta> Ventas { get; set; } = new();
     }
 }
