@@ -193,7 +193,8 @@ namespace Kiosco.Api.Controllers
                 }
 
                 // 10. Obtener ID del usuario logueado (cajero) desde el token JWT
-                var userIdClaim = User.FindFirst("sub")?.Value;
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? User.FindFirst("sub")?.Value;
                 if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int idUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario.");
