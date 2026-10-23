@@ -35,10 +35,4 @@ namespace Kiosco.Api.Models
         public decimal PrecioUnitario { get; set; }
         public decimal Subtotal { get; set; }
     }
-    public class ClienteResponse
-    {
-        public int Id { get; set; }
-        public string Nombre { get; set; } = "";
-        public string? DniCuit { get; set; }
-    }
 }
