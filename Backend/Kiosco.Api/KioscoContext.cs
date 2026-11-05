@@ -11,7 +11,8 @@ namespace Kiosco.Api
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<DetalleVenta> DetalleVentas { get; set; }
-        public DbSet<CierreCaja> CierresCaja { get; set; } 
+        public DbSet<CierreCaja> CierresCaja { get; set; }
+        public DbSet<LoteProducto> LotesProductos { get; set; }
 
         public KioscoContext(DbContextOptions<KioscoContext> options) : base(options)
         {
@@ -84,7 +85,7 @@ namespace Kiosco.Api
                     .HasPrecision(12, 2);
                 entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
                 entity.Property(e => e.IdCliente).HasColumnName("id_cliente");
-                
+
                 // Mapeo de id_cierre
                 entity.Property(e => e.IdCierre).HasColumnName("id_cierre");
 
@@ -154,6 +155,23 @@ namespace Kiosco.Api
                     .WithMany()
                     .HasForeignKey(e => e.IdUsuario)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+            // Agregar dentro de OnModelCreating(ModelBuilder modelBuilder)
+            modelBuilder.Entity<LoteProducto>(entity =>
+            {
+                entity.ToTable("lotes_productos");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.IdProducto).HasColumnName("id_producto");
+                entity.Property(e => e.FechaVencimiento).HasColumnName("fecha_vencimiento");
+                entity.Property(e => e.CantidadInicial).HasColumnName("cantidad_inicial");
+                entity.Property(e => e.CantidadActual).HasColumnName("cantidad_actual");
+                entity.Property(e => e.FechaIngreso).HasColumnName("fecha_ingreso");
+
+                // Relación Lote -> Producto (RESTRICT: no se borra producto si tiene lotes)
+                entity.HasOne(e => e.Producto)
+                .WithMany()
+                .HasForeignKey(e => e.IdProducto)
+                .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
