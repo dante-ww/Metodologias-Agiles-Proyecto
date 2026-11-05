@@ -10,10 +10,12 @@ namespace Kiosco.Api.Models
         public decimal Vuelto { get; set; }
         public int IdUsuario { get; set; }
         public int? IdCliente { get; set; }
+        public int? IdCierre { get; set; }
 
         // Navegaciones
         public Usuario? Usuario { get; set; }
         public Cliente? Cliente { get; set; }
+        public CierreCaja? CierreCaja { get; set; }
         public List<DetalleVenta> Detalle { get; set; } = new();
     }
 }

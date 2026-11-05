@@ -11,6 +11,7 @@ namespace Kiosco.Api
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<DetalleVenta> DetalleVentas { get; set; }
+        public DbSet<CierreCaja> CierresCaja { get; set; } 
 
         public KioscoContext(DbContextOptions<KioscoContext> options) : base(options)
         {
@@ -83,6 +84,9 @@ namespace Kiosco.Api
                     .HasPrecision(12, 2);
                 entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
                 entity.Property(e => e.IdCliente).HasColumnName("id_cliente");
+                
+                // Mapeo de id_cierre
+                entity.Property(e => e.IdCierre).HasColumnName("id_cierre");
 
                 // Relación Venta -> Usuario (RESTRICT por defecto en MySQL, no se borra usuario con ventas)
                 entity.HasOne(e => e.Usuario)
@@ -95,6 +99,12 @@ namespace Kiosco.Api
                     .WithMany(c => c.Ventas)
                     .HasForeignKey(e => e.IdCliente)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                // Relación Venta -> Cierre
+                entity.HasOne(e => e.CierreCaja)
+                    .WithMany(c => c.Ventas)
+                    .HasForeignKey(e => e.IdCierre)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<DetalleVenta>(entity =>
@@ -121,6 +131,28 @@ namespace Kiosco.Api
                 entity.HasOne(e => e.Producto)
                     .WithMany()
                     .HasForeignKey(e => e.IdProducto)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<CierreCaja>(entity =>
+            {
+                entity.ToTable("cierres_caja");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
+                entity.Property(e => e.FechaInicio).HasColumnName("fecha_inicio");
+                entity.Property(e => e.FechaCierre).HasColumnName("fecha_cierre");
+                entity.Property(e => e.TotalEfectivo)
+                    .HasColumnName("total_efectivo")
+                    .HasPrecision(12, 2);
+                entity.Property(e => e.TotalTarjeta)
+                    .HasColumnName("total_tarjeta")
+                    .HasPrecision(12, 2);
+                entity.Property(e => e.CantidadVentas).HasColumnName("cantidad_ventas");
+
+                // Relación Cierre -> Usuario (RESTRICT por defecto en MySQL)
+                entity.HasOne(e => e.Usuario)
+                    .WithMany()
+                    .HasForeignKey(e => e.IdUsuario)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }
