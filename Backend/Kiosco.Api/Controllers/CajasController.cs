@@ -145,12 +145,10 @@ namespace Kiosco.Api.Controllers
 
                 return Ok(Mapear(cierre, cierre.Usuario != null ? cierre.Usuario.Nombre : ""));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await transaction.RollbackAsync();
-                // TEMPORAL: Exponemos el mensaje real para diagnóstico
-                // IMPORTANTE: Revertir esto a producción después de obtener el error
-                return StatusCode(500, $"Error interno al cerrar la caja: {ex.Message}");
+                return StatusCode(500, $"Error interno al cerrar la caja.");
             }
         }
 

@@ -91,7 +91,7 @@ namespace Kiosco.Api
 
                 // Relación Venta -> Usuario (RESTRICT por defecto en MySQL, no se borra usuario con ventas)
                 entity.HasOne(e => e.Usuario)
-                    .WithMany()
+                    .WithMany(u => u.Ventas)
                     .HasForeignKey(e => e.IdUsuario)
                     .OnDelete(DeleteBehavior.Restrict);
 
@@ -156,7 +156,7 @@ namespace Kiosco.Api
                     .HasForeignKey(e => e.IdUsuario)
                     .OnDelete(DeleteBehavior.Restrict);
             });
-            // Agregar dentro de OnModelCreating(ModelBuilder modelBuilder)
+            
             modelBuilder.Entity<LoteProducto>(entity =>
             {
                 entity.ToTable("lotes_productos");
