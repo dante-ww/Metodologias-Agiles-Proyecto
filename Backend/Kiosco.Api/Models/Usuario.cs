@@ -6,5 +6,6 @@ namespace Kiosco.Api.Models
         public string Nombre { get; set; } = "";
         public string PasswordHash { get; set; } = "";
         public Rol Rol { get; set; }
+        public List<Venta> Ventas { get; set; } = new();
     }
 }
