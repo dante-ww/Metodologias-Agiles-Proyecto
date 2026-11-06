@@ -20,14 +20,22 @@ namespace Kiosco.Api.Controllers
         // GET api/ventas
         // Lista todas las ventas con info básica
         [HttpGet]
-        public async Task<IActionResult> GetVentas()
+        public async Task<IActionResult> GetVentas([FromQuery] int? idCierre = null)
         {
-            var ventas = await _context.Ventas
+            var query = _context.Ventas
                 .AsNoTracking()
                 .Include(v => v.Usuario)
                 .Include(v => v.Cliente)
                 .Include(v => v.Detalle)
                     .ThenInclude(d => d.Producto)
+                .AsQueryable();
+
+            if (idCierre.HasValue)
+            {
+                query = query.Where(v => v.IdCierre == idCierre.Value);
+            }
+
+            var ventas = await query
                 .OrderByDescending(v => v.Fecha)
                 .Select(v => new VentaResponse
                 {
