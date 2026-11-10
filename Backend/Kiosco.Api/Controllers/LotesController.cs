@@ -167,5 +167,27 @@ namespace Kiosco.Api.Controllers
                 DiasParaVencer = (lote.FechaVencimiento - DateTime.Today).Days
             });
         }
+
+        // ========================================
+        // DELETE api/lotes/5
+        // Eliminar un lote (error de carga o limpieza de datos de prueba).
+        // Autorización: Solo ADMINISTRADOR (coherente con el POST).
+        // ========================================
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> DeleteLote(int id)
+        {
+            var lote = await _context.LotesProductos.FindAsync(id);
+            if (lote == null)
+            {
+                return NotFound();
+            }
+
+            _context.LotesProductos.Remove(lote);
+            await _context.SaveChangesAsync();
+
+            // Estándar REST: 204 No Content, igual que DELETE de productos y usuarios
+            return NoContent();
+        }
     }
 }
