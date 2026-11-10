@@ -37,23 +37,36 @@ namespace Kiosco.Api.Controllers
                 query = query.Where(l => l.IdProducto == idProducto.Value);
             }
 
+            // Se traen solo columnas crudas: sin aritmética de fechas en SQL
             var lotes = await query
-                .OrderBy(l => l.FechaVencimiento) // Los que vencen antes, primero
-                .Select(l => new LoteResponse
+                .OrderBy(l => l.FechaVencimiento)
+                .Select(l => new
                 {
-                    Id = l.Id,
-                    IdProducto = l.IdProducto,
+                    l.Id,
+                    l.IdProducto,
                     NombreProducto = l.Producto != null ? l.Producto.Nombre : "",
-                    FechaVencimiento = l.FechaVencimiento,
-                    CantidadInicial = l.CantidadInicial,
-                    CantidadActual = l.CantidadActual,
-                    FechaIngreso = l.FechaIngreso,
-                    EstaVencido = l.FechaVencimiento < DateTime.Today,
-                    DiasParaVencer = (l.FechaVencimiento - DateTime.Today).Days
+                    l.FechaVencimiento,
+                    l.CantidadInicial,
+                    l.CantidadActual,
+                    l.FechaIngreso
                 })
                 .ToListAsync();
 
-            return Ok(lotes);
+            // Derivados calculados en memoria (fuera de la consulta SQL)
+            var respuesta = lotes.Select(l => new LoteResponse
+            {
+                Id = l.Id,
+                IdProducto = l.IdProducto,
+                NombreProducto = l.NombreProducto,
+                FechaVencimiento = l.FechaVencimiento,
+                CantidadInicial = l.CantidadInicial,
+                CantidadActual = l.CantidadActual,
+                FechaIngreso = l.FechaIngreso,
+                EstaVencido = l.FechaVencimiento < DateTime.Today,
+                DiasParaVencer = (l.FechaVencimiento - DateTime.Today).Days
+            }).ToList();
+
+            return Ok(respuesta);
         }
 
         // ========================================
@@ -70,23 +83,37 @@ namespace Kiosco.Api.Controllers
             var lotes = await _context.LotesProductos
                 .AsNoTracking()
                 .Include(l => l.Producto)
-                .Where(l => l.FechaVencimiento >= DateTime.Today && l.FechaVencimiento <= fechaLimite && l.CantidadActual > 0)
+                .Where(l => l.FechaVencimiento >= DateTime.Today
+                        && l.FechaVencimiento <= fechaLimite
+                        && l.CantidadActual > 0)
                 .OrderBy(l => l.FechaVencimiento)
-                .Select(l => new LoteResponse
+                .Select(l => new
                 {
-                    Id = l.Id,
-                    IdProducto = l.IdProducto,
+                    l.Id,
+                    l.IdProducto,
                     NombreProducto = l.Producto != null ? l.Producto.Nombre : "",
-                    FechaVencimiento = l.FechaVencimiento,
-                    CantidadInicial = l.CantidadInicial,
-                    CantidadActual = l.CantidadActual,
-                    FechaIngreso = l.FechaIngreso,
-                    EstaVencido = false, // Por definición del filtro, no están vencidos aún
-                    DiasParaVencer = (l.FechaVencimiento - DateTime.Today).Days
+                    l.FechaVencimiento,
+                    l.CantidadInicial,
+                    l.CantidadActual,
+                    l.FechaIngreso
                 })
                 .ToListAsync();
 
-            return Ok(lotes);
+            // Derivados calculados en memoria (fuera de la consulta SQL)
+            var respuesta = lotes.Select(l => new LoteResponse
+            {
+                Id = l.Id,
+                IdProducto = l.IdProducto,
+                NombreProducto = l.NombreProducto,
+                FechaVencimiento = l.FechaVencimiento,
+                CantidadInicial = l.CantidadInicial,
+                CantidadActual = l.CantidadActual,
+                FechaIngreso = l.FechaIngreso,
+                EstaVencido = false, // Por definición del filtro, aún no están vencidos
+                DiasParaVencer = (l.FechaVencimiento - DateTime.Today).Days
+            }).ToList();
+
+            return Ok(respuesta);
         }
 
         // ========================================
