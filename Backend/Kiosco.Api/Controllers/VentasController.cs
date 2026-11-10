@@ -200,13 +200,19 @@ namespace Kiosco.Api.Controllers
                     return BadRequest("El cliente indicado no existe.");
                 }
 
-                // 10. Obtener ID del usuario logueado (cajero) desde el token JWT
+                // 10.a. Obtener ID del usuario logueado (cajero) desde el token JWT
                 var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
                     ?? User.FindFirst("sub")?.Value;
                 if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int idUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario.");
                 }
+
+                // 10.b. Buscar si hay una caja abierta para asignarle la venta
+                int? idCierreAbierto = await _context.CierresCaja
+                    .Where(c => c.FechaCierre == null)
+                    .Select(c => (int?)c.Id)
+                    .FirstOrDefaultAsync();
 
                 // 11. Crear la venta
                 var venta = new Venta
@@ -218,6 +224,7 @@ namespace Kiosco.Api.Controllers
                     Vuelto = vuelto,
                     IdUsuario = idUsuario,
                     IdCliente = idCliente,
+                    IdCierre = idCierreAbierto,
                     Detalle = detalles
                 };
 

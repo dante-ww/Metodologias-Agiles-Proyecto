@@ -117,11 +117,12 @@ namespace Kiosco.Api.Controllers
 
                 var fechaCierre = DateTime.Now;
 
-                // Ventas del turno: sin asignar a ningún cierre y dentro de la ventana de tiempo
+                // Ventas del turno: las ya asignadas a este cierre + huérfanas dentro de la ventana
                 var ventasDelCierre = await _context.Ventas
-                    .Where(v => v.IdCierre == null
+                    .Where(v => v.IdCierre == cierre.Id
+                            || (v.IdCierre == null
                             && v.Fecha >= cierre.FechaInicio
-                            && v.Fecha <= fechaCierre)
+                            && v.Fecha <= fechaCierre))
                     .ToListAsync();
 
                 // Se suma Total (no MontoRecibido) porque el vuelto ya salió del cajón;
