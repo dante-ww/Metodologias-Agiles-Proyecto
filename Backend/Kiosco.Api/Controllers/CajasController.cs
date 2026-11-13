@@ -23,10 +23,8 @@ namespace Kiosco.Api.Controllers
         // ========================================
         // GET api/cajas
         // Listar el historial de todas las cajas (abiertas y cerradas).
-        // Solo ADMINISTRADOR: es información sensible de auditoría/contable.
         // ========================================
         [HttpGet]
-        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> GetCajas()
         {
             var cierres = await _context.CierresCaja
