@@ -142,13 +142,39 @@ namespace Kiosco.Api.Controllers
                         $"UPDATE productos SET stock = stock - {item.Cantidad} WHERE id = {item.IdProducto} AND stock >= {item.Cantidad}"
                     );
 
-                    // 5. Verificar si la actualización fue exitosa
+                    // 5.a. Verificar si la actualización fue exitosa
                     if (filasAfectadas == 0)
                     {
                         var productoFallido = await _context.Productos.FindAsync(item.IdProducto);
                         string nombreProducto = productoFallido?.Nombre ?? $"ID {item.IdProducto}";
 
                         return BadRequest($"Stock insuficiente para {nombreProducto}. Intente nuevamente.");
+                    }
+
+                    // 5.b. Descontar también de los lotes.
+                    // Si no hay lotes o no alcanzan, el resto ya salió del stock del producto.
+                    int pendientePorLote = item.Cantidad;
+
+                    var lotesDelProducto = await _context.LotesProductos
+                        .AsNoTracking()
+                        .Where(l => l.IdProducto == item.IdProducto && l.CantidadActual > 0)
+                        .OrderBy(l => l.FechaVencimiento)
+                        .ToListAsync();
+
+                    foreach (var lote in lotesDelProducto)
+                    {
+                        if (pendientePorLote <= 0) break;
+
+                        int aDescontar = Math.Min(pendientePorLote, lote.CantidadActual);
+
+                        var filasLote = await _context.Database.ExecuteSqlInterpolatedAsync(
+                            $"UPDATE lotes_productos SET cantidad_actual = cantidad_actual - {aDescontar} WHERE id = {lote.Id} AND cantidad_actual >= {aDescontar}"
+                        );
+
+                        if (filasLote > 0)
+                        {
+                            pendientePorLote -= aDescontar;
+                        }
                     }
 
                     // 6. el stock se descontó con éxito de forma atómica.
