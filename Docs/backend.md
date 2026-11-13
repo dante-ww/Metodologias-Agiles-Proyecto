@@ -38,7 +38,7 @@ Hay dos roles (`enum Rol`): `CAJERO` (0) y `ADMINISTRADOR` (1).
 | Editar clientes | ✅ | ❌ |
 | Registrar y ver ventas | ✅ | ✅ |
 | Abrir y cerrar caja | ✅ | ✅ |
-| Ver historial de cajas | ✅ | ❌ |
+| Ver historial de cajas | ✅ | ✅ |
 | Ver lotes y alertas de vencimiento | ✅ | ✅ |
 | Cargar / eliminar lotes | ✅ | ❌ |
 | Crear usuarios (admin/cajero) | ✅ | ❌ |
@@ -81,8 +81,8 @@ Hay dos roles (`enum Rol`): `CAJERO` (0) y `ADMINISTRADOR` (1).
 | DELETE | /api/usuarios/{id} | Elimina un usuario | ADMINISTRADOR |
 | GET | /api/ventas | Lista ventas; filtro opcional `?idCierre=X` para el historial de un cierre | ADMINISTRADOR, CAJERO |
 | GET | /api/ventas/{id} | Detalle completo de una venta (ticket) | ADMINISTRADOR, CAJERO |
-| POST | /api/ventas | Registra una venta: descuenta stock, calcula vuelto y la asigna a la caja abierta | ADMINISTRADOR, CAJERO |
-| GET | /api/cajas | Historial de cajas (abiertas y cerradas) con totales | ADMINISTRADOR |
+| POST | /api/ventas | Registra una venta: descuenta stock y lotes (FEFO), calcula vuelto y la asigna a la caja abierta | ADMINISTRADOR, CAJERO |
+| GET | /api/cajas | Historial de cajas (abiertas y cerradas) con totales | ADMINISTRADOR, CAJERO |
 | POST | /api/cajas/abrir | Abre una caja (solo puede haber una abierta a la vez) | ADMINISTRADOR, CAJERO |
 | POST | /api/cajas/{id}/cerrar | Cierra la caja: calcula totales y le asigna las ventas del turno | ADMINISTRADOR, CAJERO |
 | GET | /api/lotes | Lista lotes ordenados por vencimiento; filtro opcional `?idProducto=X` | ADMINISTRADOR, CAJERO |
@@ -94,6 +94,7 @@ Hay dos roles (`enum Rol`): `CAJERO` (0) y `ADMINISTRADOR` (1).
 
 ### Ventas
 - El stock se descuenta de forma **atómica** en MySQL (`UPDATE ... WHERE stock >= cantidad`) dentro de una transacción; si no alcanza, responde 400.
+- En la misma transacción se descuenta la cantidad de los lotes del producto, del que vence primero al que vence último (FEFO). Ver *Lotes y Stock*.
 - El total y el vuelto se calculan en el servidor con el precio de venta vigente. En `TARJETA` se cobra el exacto (sin vuelto); en `EFECTIVO` el monto recibido debe cubrir el total.
 - Si no se envía `idCliente`, se usa el cliente id 1 (Consumidor Final).
 - La venta se asigna automáticamente a la **caja abierta** (`IdCierre`); si no hay caja abierta queda en `null` y el próximo cierre la absorbe si cae dentro de su ventana de tiempo.
@@ -103,13 +104,15 @@ Hay dos roles (`enum Rol`): `CAJERO` (0) y `ADMINISTRADOR` (1).
 ### Cajas
 - Solo puede haber **una caja abierta a la vez** (409 al intentar abrir otra).
 - Al cerrar, se suma el `Total` de cada venta por medio de pago (no el `MontoRecibido`, porque el vuelto ya salió del cajón), se cuenta la cantidad de ventas y se asignan al cierre las ventas del turno (ya asignadas + huérfanas dentro de la ventana), todo en una transacción.
-- El historial (`GET /api/cajas`) es información sensible: solo ADMINISTRADOR.
+- El historial (`GET /api/cajas`) es accesible a cualquier usuario logueado: el frontend lo consulta para saber si hay una caja abierta y obtener su id, y con la restricción de admin el cajero no podía operar la caja.
 
 ### Lotes y Stock
-- Modelo de **stock simple**: `productos.stock` es la fuente de verdad para las ventas; `lotes_productos` registra los ingresos con fecha de vencimiento para las alertas del panel de administración.
-- El alta de lote valida cantidad > 0 y fecha no vencida; `CantidadActual` se inicializa igual a `CantidadInicial`.
+- Modelo de **stock simple**: `productos.stock` es la fuente de verdad del total disponible; `lotes_productos` registra las partidas con su fecha de vencimiento.
+- El alta de lote valida cantidad > 0 y fecha no vencida; `CantidadActual` se inicializa igual a `CantidadInicial`. **No suma stock** al producto: el stock se carga desde productos (POST/PUT).
+- Al vender, además del stock del producto se descuenta `CantidadActual` de los lotes de ese producto, **del que vence primero al que vence último (FEFO)**, dentro de la misma transacción.
+- Si un producto no tiene lotes, o los lotes no alcanzan para cubrir la venta, el excedente sale del stock sin vencimiento registrado: la venta no se bloquea.
 - Los campos derivados `EstaVencido` y `DiasParaVencer` se calculan **en memoria** (fuera de la consulta SQL) por compatibilidad con el proveedor MySQL.
-- `vencimientos-proximos` devuelve solo lotes con stock (`CantidadActual > 0`) que vencen entre hoy y hoy + `dias`, ordenados por vencimiento.
+- `vencimientos-proximos` devuelve solo lotes con stock (`CantidadActual > 0`) que vencen entre hoy y hoy + `dias`, ordenados por vencimiento. Un lote agotado deja de aparecer en las alertas, pero sigue visible en `GET /api/lotes`.
 - El DELETE de lotes (ADMIN) sirve para corregir cargas erróneas; no modifica `productos.stock`.
 
 ### Categorías

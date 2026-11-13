@@ -1,8 +1,8 @@
-# Proyecto - Sistema de Gestión para Kiosco
+# Mi Kiosco
 
-> 🚧 **Nombre del kiosco:** *pendiente de definir*
+Proyecto universitario de **Metodologías Ágiles para el Desarrollo de Software** — Comisión 1, Grupo 6.
 
-Proyecto universitario de la materia **Metodologías Ágiles en el Desarrollo de Software**: sistema de gestión para un kiosco con control de acceso por roles, ventas, stock y reportes.
+Sistema de gestión para kioscos: punto de venta, control de stock y vencimientos, cajas por turno y reportes, con acceso por roles (Administrador y Cajero).
 
 ## 👥 Integrantes
 
@@ -14,6 +14,16 @@ Proyecto universitario de la materia **Metodologías Ágiles en el Desarrollo de
 | *Evian Delle Donne* | [@EvianDelleDonnne](https://github.com/EvianDelleDonnne) | Tester |
 | *Dante Tabó* | [@dantetabo](https://github.com/dantetabo) | Scrum Master |
 | *Lautaro Martinucci* | [@Lautaromartinucci](https://github.com/Lautaromartinucci) | Pendiente de asignar |
+
+## 👀 Tecnologías
+
+| Capa | Tecnología |
+| :--- | :--- |
+| Backend | ASP.NET Core Web API (.NET 10), C#, Entity Framework Core, JWT, BCrypt |
+| Base de datos | MySQL |
+| Frontend | Next.js, React, TypeScript, Tailwind CSS |
+| Testing | Swagger (pruebas manuales de la API) |
+| Despliegue | Vercel, Render, Aiven |
 
 ## 🗣️ Estructura del repositorio
 
@@ -29,18 +39,7 @@ Metodologias-Agiles-Proyecto/
 └── README.md
 ```
 
-## 👀 Tecnologías
+## 🔗 Enlaces
 
-| Capa | Tecnología |
-| :--- | :--- |
-| Backend | ASP. NET Core Web API (. NET 10), C#, Entity Framework Core, JWT, BCrypt |
-| Base de datos | MySQL |
-| Frontend | HTML, CSS, Next.js |
-| Testing | Pendiente de rellenar |
-
-## 📦 Sprints
-
-### Sprint 1 — Autenticación y roles (en curso)
-
-* HU3 — Roles diferenciados
-* HU Técnica — Login y autenticación
+- API / Swagger: https://metodologias-agiles-proyecto-backend.onrender.com/
+- Frontend: https://github.com/MiguelAngelSalas/mi-kiosco
